@@ -1,0 +1,2 @@
+- [kesl.deb](https://github.com/devil666face/gokesl/releases/download/dist/kesl-astra_11.1.0-3013.mod_amd64.deb)
+- [agent.deb](https://github.com/devil666face/gokesl/releases/download/dist/klnagent64_15.1.0-20748_amd64.deb)
