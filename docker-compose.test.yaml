@@ -1,0 +1,11 @@
+services:
+  gokesl:
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: gokesl:test
+    volumes:
+      - ./bin:/localbin
+    container_name: gokesl_test

@@ -1,0 +1,16 @@
+FROM registry.astralinux.ru/library/alse:1.7.5
+RUN DEBIAN_FRONTEND=noninteractive \
+    apt-get update --quiet --quiet && \
+    apt-get install --quiet --quiet --yes \
+    --no-install-recommends --no-install-suggests \
+    procps \
+    && apt-get --quiet --quiet clean \
+    && rm --recursive --force /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY cmd/gokesl/klnagent64_15.1.0-20748_amd64.deb /tmp
+COPY cmd/gokesl/kesl-astra_11.1.0-3013.mod_amd64.deb /tmp
+RUN DEBIAN_FRONTEND=noninteractive \
+    apt-get install --quiet --quiet --yes \
+    --no-install-recommends --no-install-suggests \
+    /tmp/klnagent64_15.1.0-20748_amd64.deb
+COPY bin /opt/bin
+CMD ["/bin/bash","-c","/opt/bin/gokesl || sleep infinity"]
