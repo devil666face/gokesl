@@ -24,6 +24,7 @@ type manager interface {
 type Gokesl struct {
 	agentbin  *binfile
 	keslbin   *binfile
+	keyfile   *binfile
 	os        string
 	kscIP     string
 	updateURI string
@@ -42,7 +43,7 @@ func (b *binfile) Remove() error {
 }
 
 func New(
-	_agentbin, _keslbin *[]byte,
+	_agentbin, _keslbin, _keyfile *[]byte,
 	_os string,
 	_kscIP string,
 	_updateURI string,
@@ -54,6 +55,10 @@ func New(
 		},
 		keslbin: &binfile{
 			data:     _keslbin,
+			filename: fs.TempPath(),
+		},
+		keyfile: &binfile{
+			data:     _keyfile,
 			filename: fs.TempPath(),
 		},
 		os:        _os,

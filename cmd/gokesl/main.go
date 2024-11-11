@@ -15,6 +15,9 @@ var AgentBin []byte
 //go:embed kesl-astra_11.1.0-3013.mod_amd64.deb
 var KeslBin []byte
 
+//go:embed ws.key
+var KeyFile []byte
+
 var (
 	// Os        = gokesl.Redhat
 	Os        = gokesl.Debian
@@ -24,7 +27,7 @@ var (
 
 func main() {
 	_gokesl, err := gokesl.New(
-		&AgentBin, &KeslBin,
+		&AgentBin, &KeslBin, &KeyFile,
 		Os,
 		KscIP,
 		UpdateURI,

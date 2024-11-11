@@ -4,10 +4,13 @@ const (
 	dpkg     = "dpkg"
 	rpm      = "rpm"
 	klnagent = "klnagent64"
-	kesl     = "kesl"
+	kesl     = "kesl-astra"
 )
 
-const IpReplacer = "{{ ip }}"
+const (
+	IpReplacer  = "{{ ip }}"
+	KeyReplacer = "{{ key }}"
+)
 
 var AgentConfig string = `
 EULA_ACCEPTED=yes
@@ -21,11 +24,11 @@ KLNAGENT_GW_MODE=1
 var KeslConfig string = `EULA_AGREED=yes
 PRIVACY_POLICY_AGREED=yes
 USE_KSN=no
-UPDATE_SOURCE=KSCServer
+UPDATE_SOURCE=SCServer
 ADMIN_USER=admin
 GROUP_CLEAN=no
 USE_GUI=yes
 
 INSTALL_LICENSE={{ key }}
-UPDATE_EXECUTE=yes
+UPDATE_EXECUTE=no
 `

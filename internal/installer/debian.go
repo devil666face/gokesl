@@ -14,6 +14,7 @@ type Debian struct {
 	keslpath           string
 	agentConfigPath    string
 	keslConfigPath     string
+	keyPath            string
 	agentConfigContent []byte
 	keslConfigContent  []byte
 }
@@ -21,6 +22,7 @@ type Debian struct {
 func NewDebian(
 	kscIP string,
 	basesURI string,
+	_keyPath string,
 	_agentpath string,
 	_keslpath string,
 ) *Debian {
@@ -30,8 +32,9 @@ func NewDebian(
 		keslpath:           _keslpath,
 		agentConfigPath:    fs.TempPath(),
 		keslConfigPath:     fs.TempPath(),
+		keyPath:            _keyPath,
 		agentConfigContent: []byte(strings.ReplaceAll(AgentConfig, IpReplacer, kscIP)),
-		keslConfigContent:  []byte(KeslConfig),
+		keslConfigContent:  []byte(strings.ReplaceAll(KeslConfig, KeyReplacer, _keyPath)),
 	}
 }
 
@@ -39,6 +42,7 @@ func (d *Debian) Install() error {
 	if !fs.FileExists("/usr/bin/dpkg") {
 		return fmt.Errorf("dpkg not found in PATH")
 	}
+
 	exists, err := d.checkPkgExists(klnagent)
 	if err != nil {
 		return fmt.Errorf("failed to check existing pkg: %w", err)
@@ -59,6 +63,22 @@ func (d *Debian) Install() error {
 	}
 	if err := d.checkAgent(); err != nil {
 		return fmt.Errorf("failed to check agent status: %w", err)
+	}
+
+	exists, err = d.checkPkgExists(kesl)
+	if err != nil {
+		return fmt.Errorf("failed to check existing pkg: %w", err)
+	}
+	if exists {
+		if err := d.removePkg(kesl); err != nil {
+			return fmt.Errorf("failed to remove already installed pkg: %w", err)
+		}
+	}
+	if err := fs.WriteFile(d.keslConfigPath, d.keslConfigContent); err != nil {
+		return fmt.Errorf("failed to create config for %s: %w", kesl, err)
+	}
+	if err := d.postinstallKesl(); err != nil {
+		return fmt.Errorf("failed to run postinstall kesl script: %w", err)
 	}
 
 	return nil
@@ -111,6 +131,14 @@ func (d *Debian) checkAgent() error {
 	}
 	log.Println(out)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Debian) postinstallKesl() error {
+	log.Println("run postinstall kesl scipt")
+	if _, err := shell.New(fmt.Sprintf("/opt/kaspersky/kesl/bin/kesl-setup.pl --autoinstall=%s", d.keslConfigPath)).Run(); err != nil {
 		return err
 	}
 	return nil
