@@ -70,6 +70,7 @@ func New(
 		_gokesl.manager = installer.NewDebian(
 			_gokesl.kscIP,
 			_gokesl.updateURI,
+			_gokesl.keslbin.filename,
 			_gokesl.agentbin.filename,
 			_gokesl.keslbin.filename,
 		)

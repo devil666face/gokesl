@@ -38,11 +38,7 @@ func NewDebian(
 	}
 }
 
-func (d *Debian) Install() error {
-	if !fs.FileExists("/usr/bin/dpkg") {
-		return fmt.Errorf("dpkg not found in PATH")
-	}
-
+func (d *Debian) InstallAgent() error {
 	exists, err := d.checkPkgExists(klnagent)
 	if err != nil {
 		return fmt.Errorf("failed to check existing pkg: %w", err)
@@ -61,11 +57,25 @@ func (d *Debian) Install() error {
 	if err := d.postinstallAgent(); err != nil {
 		return fmt.Errorf("failed to run postinstall agent script: %w", err)
 	}
+	if err := d.restartSystemd(klnagent); err != nil {
+		return fmt.Errorf("failed to restart %s: %w", klnagent, err)
+	}
 	if err := d.checkAgent(); err != nil {
 		return fmt.Errorf("failed to check agent status: %w", err)
 	}
+	return nil
+}
 
-	exists, err = d.checkPkgExists(kesl)
+func (d *Debian) Install() error {
+	if !fs.FileExists("/usr/bin/dpkg") {
+		return fmt.Errorf("dpkg not found in PATH")
+	}
+
+	if err := d.InstallAgent(); err != nil {
+		return fmt.Errorf("agent install error: %w", err)
+	}
+
+	exists, err := d.checkPkgExists(kesl)
 	if err != nil {
 		return fmt.Errorf("failed to check existing pkg: %w", err)
 	}
@@ -123,6 +133,14 @@ func (d *Debian) postinstallAgent() error {
 	return nil
 }
 
+func (d *Debian) restartSystemd(unitname string) error {
+	log.Printf("systemctl restart %s\n", unitname)
+	if _, err := shell.New("/usr/bin/systemctl", "restart", unitname).Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (d *Debian) checkAgent() error {
 	log.Println("run check agent")
 	out, code, err := shell.New("/opt/kaspersky/klnagent64/sbin/klnagchk").RunWithReturnCode()
@@ -138,7 +156,7 @@ func (d *Debian) checkAgent() error {
 
 func (d *Debian) postinstallKesl() error {
 	log.Println("run postinstall kesl scipt")
-	if _, err := shell.New(fmt.Sprintf("/opt/kaspersky/kesl/bin/kesl-setup.pl --autoinstall=%s", d.keslConfigPath)).Run(); err != nil {
+	if _, err := shell.New("/opt/kaspersky/kesl/bin/kesl-setup.pl", "--autoinstall="+d.keslConfigPath).Run(); err != nil {
 		return err
 	}
 	return nil
