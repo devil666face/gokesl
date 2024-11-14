@@ -4,8 +4,7 @@ $(shell [ -f bin ] || mkdir -p $(PROJECT_BIN))
 GOBIN = go
 PATH := $(PROJECT_BIN):$(PATH)
 GOARCH = amd64
-LINUX_LDFLAGS = -extldflags '-static' -w -s -buildid=
-WINDOWS_LDFLAGS = -extldflags '-static' -w -s -buildid=
+LDFLAGS = -extldflags '-static' -w -s -buildid=
 GCFLAGS = "all=-trimpath=$(shell pwd) -dwarf=false -l"
 ASMFLAGS = "all=-trimpath=$(shell pwd)"
 APP = gokesl
@@ -22,7 +21,7 @@ docker: ## Build with docker
 
 build-linux: ## Build for linux
 	CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) \
-	  $(GOBIN) build -ldflags="$(LINUX_LDFLAGS)" -trimpath -gcflags=$(GCFLAGS) -asmflags=$(ASMFLAGS) \
+	  $(GOBIN) build -ldflags="$(LDFLAGS)" -trimpath -gcflags=$(GCFLAGS) -asmflags=$(ASMFLAGS) \
 	  -o $(PROJECT_BIN)/$(APP) cmd/$(APP)/main.go
 
 .crop:

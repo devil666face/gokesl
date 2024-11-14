@@ -143,7 +143,7 @@ func (d *Debian) restartSystemd(unitname string) error {
 
 func (d *Debian) checkAgent() error {
 	log.Println("run check agent")
-	out, code, err := shell.New("/opt/kaspersky/klnagent64/sbin/klnagchk").RunWithReturnCode()
+	out, code, err := shell.New("/opt/kaspersky/klnagent64/bin/klnagchk").RunWithReturnCode()
 	if code == 1 {
 		return nil
 	}

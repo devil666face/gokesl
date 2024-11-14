@@ -21,8 +21,8 @@ var KeyFile []byte
 var (
 	// Os        = gokesl.Redhat
 	Os        = gokesl.Debian
-	KscIP     = ""
-	UpdateURI = ""
+	KscIP     = "10.196.2.154"
+	UpdateURI = "http://10.196.2.154"
 )
 
 func main() {
